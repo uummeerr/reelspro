@@ -1,29 +1,21 @@
-import { IKVideo } from "imagekitio-next";
 import Link from "next/link";
 import { IVideo } from "@/models/Video";
+import ReelPlayer from "./ReelPlayer";
 
 export default function VideoComponent({ video }: { video: IVideo }) {
   return (
     <div className="card bg-base-100 shadow hover:shadow-lg transition-all duration-300">
       <figure className="relative px-4 pt-4">
-        <Link href={`/videos/${video._id}`} className="relative group w-full">
-          <div
-            className="rounded-xl overflow-hidden relative w-full"
-            style={{ aspectRatio: "9/16" }}
-          >
-            <IKVideo
-              path={video.videoUrl}
-              transformation={[
-                {
-                  height: "1920",
-                  width: "1080",
-                },
-              ]}
-              controls={video.controls}
-              className="w-full h-full object-cover"
-            />
-          </div>
-        </Link>
+        <div
+          className="rounded-xl overflow-hidden relative w-full bg-base-200"
+          style={{ aspectRatio: "9/16" }}
+        >
+          <ReelPlayer
+            path={video.videoUrl}
+            controls={video.controls ?? true}
+            className="w-full h-full object-cover"
+          />
+        </div>
       </figure>
 
       <div className="card-body p-4">

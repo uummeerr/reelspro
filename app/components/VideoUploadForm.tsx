@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
 import { IKUploadResponse } from "imagekitio-next/dist/types/components/IKUpload/props";
 import { Loader2 } from "lucide-react";
@@ -19,11 +20,13 @@ export default function VideoUploadForm() {
   const [loading, setLoading] = useState(false);
   const [uploadProgress, setUploadProgress] = useState(0);
   const { showNotification } = useNotification();
+  const router = useRouter();
 
   const {
     register,
     handleSubmit,
     setValue,
+    watch,
     formState: { errors },
   } = useForm<VideoFormData>({
     defaultValues: {
@@ -34,9 +37,13 @@ export default function VideoUploadForm() {
     },
   });
 
+  const videoUrl = watch("videoUrl");
+
   const handleUploadSuccess = (response: IKUploadResponse) => {
-    setValue("videoUrl", response.filePath);
-    setValue("thumbnailUrl", response.thumbnailUrl || response.filePath);
+    setValue("videoUrl", response.filePath, { shouldDirty: true });
+    setValue("thumbnailUrl", response.thumbnailUrl || response.filePath, {
+      shouldDirty: true,
+    });
     showNotification("Video uploaded successfully!", "success");
   };
 
@@ -54,13 +61,8 @@ export default function VideoUploadForm() {
     try {
       await apiClient.createVideo(data);
       showNotification("Video published successfully!", "success");
-
-      // Reset form after successful submission
-      setValue("title", "");
-      setValue("description", "");
-      setValue("videoUrl", "");
-      setValue("thumbnailUrl", "");
-      setUploadProgress(0);
+      router.push("/");
+      router.refresh();
     } catch (error) {
       showNotification(
         error instanceof Error ? error.message : "Failed to publish video",
@@ -124,7 +126,7 @@ export default function VideoUploadForm() {
       <button
         type="submit"
         className="btn btn-primary btn-block"
-        disabled={loading || !uploadProgress}
+        disabled={loading || !videoUrl}
       >
         {loading ? (
           <>
